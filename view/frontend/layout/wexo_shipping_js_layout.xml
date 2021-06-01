@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="checkout.root">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="checkout" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="steps" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="shipping-step" xsi:type="array">
+                                            <item name="children" xsi:type="array">
+                                                <item name="step-config" xsi:type="array">
+                                                    <item name="children" xsi:type="array">
+                                                        <item name="shipping-rates-validation" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="instabox-rates-validation" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Wexo_Instabox/js/view/shipping-validation</item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
+                                                    </item>
+                                                </item>
+                                                <item name="shippingAddress" xsi:type="array">
+                                                    <item name="children" xsi:type="array">
+                                                        <item name="shippingAdditional" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="wexoShippingAdditionalData" xsi:type="array">
+                                                                    <item name="children" xsi:type="array">
+                                                                        <item name="instabox-parcelshop" xsi:type="array">
+                                                                            <item name="component" xsi:type="string">Wexo_Instabox/js/view/checkout/shipping/parcel-shop</item>
+                                                                            <item name="children" xsi:type="array">
+                                                                                <item name="instabox-parcel-shop-form-fieldset" xsi:type="array">
+                                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                                    <item name="displayArea" xsi:type="string">fields</item>
+                                                                                    <item name="config" xsi:type="array">
+                                                                                        <item name="imports" xsi:type="array">
+                                                                                            <item name="isChosenShippingMethod" xsi:type="string">${ $.parentName }:isChosenShippingMethod</item>
+                                                                                        </item>
+                                                                                    </item>
+
+                                                                                    <item name="children" xsi:type="array">
+                                                                                        <item name="postcode" xsi:type="array">
+                                                                                            <item name="component" xsi:type="string">Magento_Ui/js/form/element/abstract</item>
+                                                                                            <item name="config" xsi:type="array">
+                                                                                                <item name="customScope" xsi:type="string">wexoShippingData</item>
+                                                                                                <item name="template" xsi:type="string">ui/form/field</item>
+                                                                                                <item name="elementTmpl" xsi:type="string">ui/form/element/input</item>
+                                                                                                <item name="imports" xsi:type="array">
+                                                                                                    <item name="disabled" xsi:type="string">!${ $.parentName }:isChosenShippingMethod</item>
+                                                                                                </item>
+                                                                                            </item>
+                                                                                            <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                                                            <item name="dataScope" xsi:type="string">wexoShippingData.postcode</item>
+                                                                                            <item name="label" xsi:type="string" translate="true">Search by postcode:</item>
+                                                                                            <item name="sortOrder" xsi:type="string">1</item>
+                                                                                            <item name="validation" xsi:type="array">
+                                                                                                <item name="required-entry" xsi:type="string">true</item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                    </item>
+                                                                                </item>
+                                                                            </item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Wexo\Instabox\Api\Carrier\InstaboxInterface" type="Wexo\Instabox\Model\Carrier\Instabox"/>
+    <preference for="Wexo\Instabox\Api\Data\ParcelShopInterface" type="Wexo\Instabox\Model\Data\ParcelShop"/>
+
+    <type name="Wexo\Shipping\Model\ComponentManagement">
+        <arguments>
+            <argument name="carriers" xsi:type="array">
+                <item name="instabox" xsi:type="object">Wexo\Instabox\Api\Carrier\InstaboxInterface</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Wexo\Instabox\Model\MethodType\ParcelShop">
+        <arguments>
+            <argument name="parcelShopClass" xsi:type="string">Wexo\Instabox\Api\Data\ParcelShopInterface</argument>
+        </arguments>
+    </type>
+    <type name="Wexo\Instabox\Model\Carrier\Instabox">
+        <arguments>
+            <argument name="defaultMethodTypeHandler" xsi:type="object">Wexo\Instabox\Model\MethodType\Address</argument>
+            <argument name="methodTypeHandlers" xsi:type="array">
+                <item name="express" xsi:type="array">
+                    <item name="label" xsi:type="string">Express (Parcel Shop)</item>
+                    <item name="type" xsi:type="object">Wexo\Instabox\Model\MethodType\ParcelShop</item>
+                </item>
+                <item name="green" xsi:type="array">
+                    <item name="label" xsi:type="string">Green</item>
+                </item>
+                <item name="instabikes" xsi:type="array">
+                    <item name="label" xsi:type="string">Instabikes</item>
+                </item>
+                <item name="collect_in_store" xsi:type="array">
+                    <item name="label" xsi:type="string">Collect In Store</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

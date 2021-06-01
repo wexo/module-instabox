@@ -1,0 +1,31 @@
+{
+  "name": "wexo/module-instabox",
+  "description": "Instabox component for Wexo Shipping",
+  "require": {
+    "wexo/module-shipping": "^2.0.0"
+  },
+  "type": "magento2-module",
+  "license": "proprietary",
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Wexo\\Instabox\\": ""
+    }
+  },
+  "require-dev": {
+    "wexo/custom-magento-2-coding-standard": "*"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://repo.wexo.dk/"
+    },
+    {
+      "type": "git",
+      "url": "https://gitlab.services.wexo.dk/magento2-modules/approved/shipping/shipping-core.git"
+    }
+  ]
+}
+

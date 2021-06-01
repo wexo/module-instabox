@@ -1,0 +1,25 @@
+image: docker:latest
+
+stages:
+  - test
+
+before_script:
+  - source ./ci/prepare
+
+codesniffer:
+  stage: test
+  image: registry.services.wexo.dk:4567/wexo-services/docker-magento:magento2-code-quality-php7.2-fpm
+  before_script:
+    - composer config -g cache-dir "$(pwd)/.composer-cache"
+    - echo "$COMPOSER_AUTH" > ~/.composer/auth.json
+    - composer install
+    - ./vendor/bin/phpcs --config-set installed_paths ./../../magento/magento-coding-standard/,./../../wexo/custom-magento-2-coding-standard/
+  script:
+    - ./vendor/bin/phpcs ./ --standard=WEXOMagento2 --warning-severity=7 --ignore=vendor/*
+  only:
+    - staging
+    - master
+  cache:
+    paths:
+      - .composer-cache/
+  allow_failure: false
