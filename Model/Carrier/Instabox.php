@@ -7,6 +7,7 @@ use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Quote\Model\Quote;
@@ -44,6 +45,10 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
      * @var \Wexo\Instabox\Model\Config
      */
     private $config;
+    /**
+     * @var Json
+     */
+    private $json;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -69,6 +74,7 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
         Api $instaboxApi,
         \Wexo\Instabox\Model\Config $config,
         Repository $assetRepository,
+        Json $json,
         StoreManagerInterface $storeManager,
         MethodTypeHandlerInterface $defaultMethodTypeHandler = null,
         array $methodTypeHandlers = [],
@@ -90,6 +96,7 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
         );
         $this->storeManager = $storeManager;
         $this->config = $config;
+        $this->json = $json;
     }
 
     /**
@@ -141,20 +148,31 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
             }
 
             $parcelShopTitle = $this->instaboxApi->getFirstParcelShopName();
-            /** @var Method $method */
-            $method = $this->methodFactory->create();
-            $method->setData('carrier', $this->_code);
-            $method->setData('carrier_title', $this->getTitle());
-            $method->setData('method', $this->makeMethodCode($rate));
-            if ($this->config->showParcelShopTitle()) {
-                $method->setData('method_title', $rate->getTitle() . ' ' . $parcelShopTitle);
-            } else {
-                $method->setData('method_title', $rate->getTitle());
+            $showAsOption = $this->instaboxApi->getShowAsOption();
+            if ($showAsOption) {
+                try{
+                    $wexoShippingData = $this->json->unserialize($quote->getData('wexo_shipping_data'));
+                    if (isset($wexoShippingData['parcelShop']) && isset($wexoShippingData['parcelShop']['company_name'])) {
+                        $parcelShopTitle = $wexoShippingData['parcelShop']['company_name'];
+                    }
+                }catch (\InvalidArgumentException $exception){
+                    // wexo shipping data is empty, skip
+                }
+                /** @var Method $method */
+                $method = $this->methodFactory->create();
+                $method->setData('carrier', $this->_code);
+                $method->setData('carrier_title', $this->getTitle());
+                $method->setData('method', $this->makeMethodCode($rate));
+                if ($this->config->showParcelShopTitle()) {
+                    $method->setData('method_title', $rate->getTitle() . ' ' . $parcelShopTitle);
+                } else {
+                    $method->setData('method_title', $rate->getTitle());
+                }
+                $method->setPrice(
+                    $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
+                );
+                $result->append($method);
             }
-            $method->setPrice(
-                $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
-            );
-            $result->append($method);
         }
 
         return $result;

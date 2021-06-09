@@ -154,9 +154,25 @@ class Api
                 'json' => $body
             ]);
         }, function (Response $response, $content) {
+            $this->saveShowAsOption($content);
             $this->saveAvailabilityToken($content);
             return $this->mapParcelShops($content);
         });
+    }
+
+    public function saveShowAsOption($content)
+    {
+        if (isset($content['availability'])) {
+            $availability = $content['availability'];
+            $type = reset($availability);
+            $showAsOption = isset($type['show_as_option']) ? $type['show_as_option'] : false;
+            $this->session->setInstaboxShowAsOption($showAsOption);
+        }
+    }
+
+    public function getShowAsOption()
+    {
+        return $this->session->getInstaboxShowAsOption();
     }
 
     public function saveAvailabilityToken($content)
@@ -459,8 +475,8 @@ class Api
                     "sort_code" => $preBooking['delivery_option']['sort_code']
                 ],
                 "details" => [
-                    "total_weight" => (float) $order->getWeight() ?? 0,
-                    "total_value" => (float) $order->getGrandTotal()
+                    "total_weight" => (float)$order->getWeight() ?? 0,
+                    "total_value" => (float)$order->getGrandTotal()
                 ],
                 "identification_options" => [
                     "type" => "ANY_PERSON",
