@@ -344,7 +344,7 @@ class Api
             $street ?? '',
             $zip,
             $shippingAddress->getCity() ?? '',
-            $this->config->getCountryByWebsite() ?? '',
+            $shippingAddress->getCountryId() ?? '',
             $quote->getStoreCurrencyCode() ?? '',
             $quote->getItems() ?? [],
             $quote->getGrandTotal() ?? 0
