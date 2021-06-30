@@ -360,9 +360,9 @@ class Api
      * Creates a Prebooking in Instabox
      * https://www.instadocs.se/docs#section-5
      *
-     * @param [type] $parcelShop
-     * @param [type] $quote
-     * @param [type] $order
+     * @param  $parcelShop
+     * @param  $quote
+     * @param  $order
      * @return void
      */
     public function createPreBooking($parcelShop, $quote, $order)
@@ -423,7 +423,7 @@ class Api
      * https://www.instadocs.se/docs#section-6
      *
      * @param OrderInterface $order
-     * @param [type] $shipment
+     * @param  $shipment
      * @return void
      */
     public function createBooking(OrderInterface $order, $shipment)

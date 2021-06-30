@@ -35,17 +35,18 @@ class CreateReturn implements ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        try{
-
+        try {
             /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
             $creditMemo = $observer->getEvent()->getCreditmemo();
-            
+
             /** @var \Magento\Sales\Model\Order $order */
             $order = $creditMemo->getOrder();
-            
+
             if ($order->getShippingMethod()) {
                 $response = $this->api->createReturn($order);
-                $wexoShippingData = $order->getData('wexo_shipping_data') !== null ? $order->getData('wexo_shipping_data') : '{}';
+                $wexoShippingData = $order->getData('wexo_shipping_data') !== null
+                    ? $order->getData('wexo_shipping_data')
+                    : '{}';
                 $shippingData = $this->json->unserialize($wexoShippingData);
                 if (isset($shippingData['instabox'])) {
                     $shippingData['instabox']['return'] = $response;
@@ -56,7 +57,7 @@ class CreateReturn implements ObserverInterface
                 }
                 $order->setData('wexo_shipping_data', $this->json->serialize($shippingData));
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $this->logger->error('Instabox Create Return', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
