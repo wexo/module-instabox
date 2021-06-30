@@ -109,7 +109,6 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
         return static::TYPE_NAME;
     }
 
-
     /**
      * @param RateRequest $request
      * @return bool|DataObject|Result|null
@@ -150,12 +149,15 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
             $parcelShopTitle = $this->instaboxApi->getFirstParcelShopName();
             $showAsOption = $this->instaboxApi->getShowAsOption();
             if ($showAsOption) {
-                try{
+                try {
                     $wexoShippingData = $this->json->unserialize($quote->getData('wexo_shipping_data'));
-                    if (isset($wexoShippingData['parcelShop']) && isset($wexoShippingData['parcelShop']['company_name'])) {
+                    if (isset($wexoShippingData['parcelShop']) &&
+                        isset($wexoShippingData['parcelShop']['company_name'])
+                    ) {
                         $parcelShopTitle = $wexoShippingData['parcelShop']['company_name'];
                     }
-                }catch (\InvalidArgumentException $exception){
+                    // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
+                } catch (\InvalidArgumentException $exception) {
                     // wexo shipping data is empty, skip
                 }
                 /** @var Method $method */
@@ -216,16 +218,6 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
         }
 
         return $parcelShops;
-    }
-
-    /**
-     * @param ShippingMethodInterface $shippingMethod
-     * @param Rate $rate
-     * @return void|CarrierInterface
-     */
-    public function convertAdditionalRateData(ShippingMethodInterface $shippingMethod, Rate $rate)
-    {
-        parent::convertAdditionalRateData($shippingMethod, $rate);
     }
 
     /**

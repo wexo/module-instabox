@@ -38,7 +38,7 @@ class CreateBooking implements ObserverInterface
             $shippingData = $this->json->unserialize($order->getData('wexo_shipping_data'));
             if (isset($shippingData['instabox'])) {
                 $shippingData['instabox']['order'] = $response;
-            }else{
+            } else {
                 $shippingData['instabox'] = [
                     'order' => $response
                 ];

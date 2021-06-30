@@ -465,11 +465,10 @@ class Api
                 /*
                     order.storage_condition Constraints
                     enum: the value of this property must be equal to one of the following values:
-
-                    Value	Explanation
-                    "freezer"	Package needs to remain frozen
-                    "fridge"	Package needs to be chilled
-                    "normal"	Package doesn't need to be cooled
+                    Value Explanation
+                    "freezer" Package needs to remain frozen
+                    "fridge" Package needs to be chilled
+                    "normal" Package doesn't need to be cooled
                  */
                 "delivery_option" => [
                     "sort_code" => $preBooking['delivery_option']['sort_code']
@@ -517,7 +516,8 @@ class Api
 
     public function createReturn($order)
     {
-
+        // awaiting return
+        return false;
     }
 
     /**
