@@ -166,6 +166,9 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
                 $method->setData('carrier_title', $this->getTitle());
                 $method->setData('method', $this->makeMethodCode($rate));
                 if ($this->config->showParcelShopTitle()) {
+                    if(empty($parcelShopTitle)){   
+                        return $result;
+                    }
                     $method->setData('method_title', $rate->getTitle() . ' ' . $parcelShopTitle);
                 } else {
                     $method->setData('method_title', $rate->getTitle());

@@ -138,6 +138,7 @@ class Api
         $items,
         $grandTotal
     ) {
+        $this->session->setInstaboxShowAsOption(false);
         $body = $this->getAvailabilityBody(
             $email,
             $phone,
@@ -355,6 +356,15 @@ class Api
         return '';
     }
 
+    /**
+     * Creates a Prebooking in Instabox
+     * https://www.instadocs.se/docs#section-5
+     *
+     * @param [type] $parcelShop
+     * @param [type] $quote
+     * @param [type] $order
+     * @return void
+     */
     public function createPreBooking($parcelShop, $quote, $order)
     {
         $availabilityToken = $this->getAvailabilityToken();
@@ -381,7 +391,7 @@ class Api
             ]
         ];
 
-        $this->logger->debug('createPreBooking preflight', [
+        $this->logger->debug('InstaBox CreatePreBooking preflight', [
             'body' => $body,
             'parcelshop' => $parcelShop,
             'quote' => $quote,
@@ -394,7 +404,7 @@ class Api
                 ]);
             }, function (Response $response, $content) {
                 $this->logger->debug(
-                    'createPreBooking Response',
+                    'Instabox CreatePreBooking Response',
                     [
                         'response' => $response,
                         'content' => $content
@@ -403,11 +413,19 @@ class Api
                 return $content;
             });
         } catch (\Throwable $t) {
-            $this->logger->error('createPreBooking ' . $t->getMessage());
+            $this->logger->error('Instabox CreatePreBooking ' . $t->getMessage());
             throw $t;
         }
     }
 
+    /**
+     * Creates an Order in Instabox
+     * https://www.instadocs.se/docs#section-6
+     *
+     * @param OrderInterface $order
+     * @param [type] $shipment
+     * @return void
+     */
     public function createBooking(OrderInterface $order, $shipment)
     {
         $shippingData = $this->jsonSerializer->unserialize($order->getData('wexo_shipping_data'));
@@ -500,7 +518,7 @@ class Api
                 ]);
             }, function (Response $response, $content) {
                 $this->logger->debug(
-                    'createOrder Response',
+                    'InstaBox CreateOrder Response',
                     [
                         'response' => $response,
                         'content' => $content
@@ -509,15 +527,49 @@ class Api
                 return $content;
             });
         } catch (\Throwable $t) {
-            $this->logger->error('createPreBooking ' . $t->getMessage());
+            $this->logger->error('Instabox CreateBooking ' . $t->getMessage());
             throw $t;
         }
     }
 
-    public function createReturn($order)
+    /**
+     * Creates returns in Instabox
+     * https://www.instadocs.se/docs#section-7
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
+    public function createReturn(OrderInterface $order)
     {
-        // awaiting return
-        return false;
+        $body = [
+            "reference_order_number" => $order->getIncrementId(),
+        ];
+        $this->logger->debug(
+            'Instabox CreateReturn Preflight',
+            [
+                'body' => $body
+            ]
+        );
+
+        try {
+            return $this->request(function (Client $client) use ($body) {
+                return $client->post(self::RETURN_URI, [
+                    'json' => $body
+                ]);
+            }, function (Response $response, $content) {
+                $this->logger->debug(
+                    'Instabox CreateReturn Response',
+                    [
+                        'response' => $response,
+                        'content' => $content
+                    ]
+                );
+                return $content;
+            });
+        } catch (\Throwable $t) {
+            $this->logger->error('Instabox CreateReturn ' . $t->getMessage());
+            throw $t;
+        }
     }
 
     /**

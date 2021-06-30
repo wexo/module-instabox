@@ -6,4 +6,7 @@
         <observer name="instabox_create_booking_on_shipment"
                   instance="Wexo\Instabox\Observer\CreateBooking" />
     </event>
+    <event name="sales_order_creditmemo_save_after">
+        <observer name="instabox_create_return" instance="Wexo\Instabox\Observer\CreateReturn"/>
+    </event>
 </config>
