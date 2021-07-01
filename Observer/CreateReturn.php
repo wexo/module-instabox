@@ -42,7 +42,7 @@ class CreateReturn implements ObserverInterface
             /** @var \Magento\Sales\Model\Order $order */
             $order = $creditMemo->getOrder();
 
-            if ($order->getShippingMethod()) {
+            if (strpos($order->getShippingMethod(), 'instabox') !== false) {
                 $response = $this->api->createReturn($order);
                 $wexoShippingData = $order->getData('wexo_shipping_data') !== null
                     ? $order->getData('wexo_shipping_data')
