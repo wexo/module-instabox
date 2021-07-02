@@ -146,37 +146,47 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
                 continue;
             }
 
-            $parcelShopTitle = $this->instaboxApi->getFirstParcelShopName();
-            $showAsOption = $this->instaboxApi->getShowAsOption();
-            if ($showAsOption) {
-                try {
-                    $wexoShippingData = $this->json->unserialize($quote->getData('wexo_shipping_data'));
-                    if (isset($wexoShippingData['parcelShop']) &&
-                        isset($wexoShippingData['parcelShop']['company_name'])
-                    ) {
-                        $parcelShopTitle = $wexoShippingData['parcelShop']['company_name'];
+            try {
+                $parcelShopTitle = $this->instaboxApi->getFirstParcelShopName();
+                $showAsOption = $this->instaboxApi->getShowAsOption();
+                if ($showAsOption) {
+                    try {
+                        $wexoShippingData = $this->json->unserialize($quote->getData('wexo_shipping_data'));
+                        if (isset($wexoShippingData['parcelShop']) &&
+                            isset($wexoShippingData['parcelShop']['company_name'])
+                        ) {
+                            $parcelShopTitle = $wexoShippingData['parcelShop']['company_name'];
+                        }
+                        // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
+                    } catch (\InvalidArgumentException $exception) {
+                        // wexo shipping data is empty, skip
                     }
-                    // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
-                } catch (\InvalidArgumentException $exception) {
-                    // wexo shipping data is empty, skip
-                }
-                /** @var Method $method */
-                $method = $this->methodFactory->create();
-                $method->setData('carrier', $this->_code);
-                $method->setData('carrier_title', $this->getTitle());
-                $method->setData('method', $this->makeMethodCode($rate));
-                if ($this->config->showParcelShopTitle()) {
-                    if (empty($parcelShopTitle)) {
-                        return $result;
+                    /** @var Method $method */
+                    $method = $this->methodFactory->create();
+                    $method->setData('carrier', $this->_code);
+                    $method->setData('carrier_title', $this->getTitle());
+                    $method->setData('method', $this->makeMethodCode($rate));
+                    if ($this->config->showParcelShopTitle()) {
+                        if (empty($parcelShopTitle)) {
+                            return $result;
+                        }
+                        $method->setData('method_title', $rate->getTitle() . ' ' . $parcelShopTitle);
+                    } else {
+                        $method->setData('method_title', $rate->getTitle());
                     }
-                    $method->setData('method_title', $rate->getTitle() . ' ' . $parcelShopTitle);
-                } else {
-                    $method->setData('method_title', $rate->getTitle());
+                    $method->setPrice(
+                        $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
+                    );
+                    $result->append($method);
                 }
-                $method->setPrice(
-                    $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
+            } catch (\Exception $exception) {
+                $this->_logger->error(
+                    'Instabox CollectRates Exception Occured',
+                    [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString()
+                    ]
                 );
-                $result->append($method);
             }
         }
 
