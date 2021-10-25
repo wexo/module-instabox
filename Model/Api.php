@@ -21,6 +21,7 @@ use Magento\Store\Api\StoreManagementInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
@@ -33,6 +34,7 @@ class Api
     const RETURN_URI = 'https://webshopintegrations.instabox.se/v2/orders';
     const TRACKING_URI = 'https://track.instabox.io';
     const CACHE_KEY_ACCESS_TOKEN = 'instabox_access_token';
+    const LABEL_GENERATOR = 'https://waybill-generator-api.instabox.se/v1/waybills';
 
     /**
      * @var ClientFactory
@@ -308,14 +310,18 @@ class Api
      * @param callable $transformer
      * @return mixed
      */
-    public function request(callable $func, callable $transformer = null)
+    public function request(callable $func, callable $transformer = null, $json = true)
     {
         try {
             /** @var Response $response */
             $response = $func($this->getClient());
 
             if ($response->getStatusCode() >= 200 && $response->getStatusCode() <= 299) {
-                $content = $this->jsonSerializer->unserialize($response->getBody()->__toString());
+                if ($json) {
+                    $content = $this->jsonSerializer->unserialize($response->getBody()->__toString());
+                } else {
+                    $content = $response->getBody()->__toString();
+                }
                 return $transformer === null ? $content : $transformer($response, $content);
             }
 
@@ -412,7 +418,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreatePreBooking ' . $t->getMessage());
             throw $t;
         }
@@ -526,7 +532,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreateBooking ' . $t->getMessage());
             throw $t;
         }
@@ -616,7 +622,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreateReturn ' . $t->getMessage());
             throw $t;
         }
@@ -654,6 +660,50 @@ class Api
         5 => 'Saturday',
         6 => 'Sunday'
     ];
+
+    /***
+     * @param OrderInterface $order
+     * @return false|mixed
+     * @throws Throwable
+     */
+    public function createShipmentLabel(OrderInterface $order)
+    {
+        $shipmentParcelId = $this->config->getCustomerNumber();
+        $shipmentCollection = $order->getShipmentsCollection();
+        $shipmentId = '';
+        foreach ($shipmentCollection as $shipment) {
+            $shipmentId = $shipment->getIncrementId();
+        }
+        $shipmentParcelId .= str_pad($shipmentId, 10, '0', STR_PAD_LEFT);
+
+        $body = [
+            'parcel_id' => $shipmentParcelId
+        ];
+        $this->logger->debug(
+            'Instabox CreateShipmentLabel preflight',
+            [
+                'body' => $body
+            ]
+        );
+        try {
+            return $this->request(function (Client $client) use ($body) {
+                $uri = self::LABEL_GENERATOR . '?' . http_build_query($body);
+                return $client->get($uri, [
+                    'header' => [
+                        'ACCEPT' => '*/*'
+                    ]
+                ]);
+            }, function (Response $response, $content) use ($shipmentParcelId) {
+                return [
+                    'content' => $content,
+                    'name' => $shipmentParcelId . '-label.pdf'
+                ];
+            }, false);
+        } catch (Throwable $t) {
+            $this->logger->error('Instabox CreateShipmentLabel ' . $t->getMessage());
+            throw $t;
+        }
+    }
 
     /**
      * @param $content
