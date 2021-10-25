@@ -30,7 +30,7 @@ class Api
     const AVAILABILITY_URI = 'https://availability.instabox.se/v3/availability';
     const PREBOOKING_URI = 'https://webshopintegrations.instabox.se/v2/prebookings';
     const ORDER_URI = 'https://webshopintegrations.instabox.se/v2/orders';
-    const RETURN_URI = 'https://webshopintegrations.instabox.se/returns';
+    const RETURN_URI = 'https://webshopintegrations.instabox.se/v2/orders';
     const TRACKING_URI = 'https://track.instabox.io';
     const CACHE_KEY_ACCESS_TOKEN = 'instabox_access_token';
 
@@ -534,15 +534,65 @@ class Api
 
     /**
      * Creates returns in Instabox
-     * https://www.instadocs.se/docs#section-7
+     * https://www.instadocs.se/docs#section-8
      *
      * @param OrderInterface $order
      * @return void
      */
     public function createReturn(OrderInterface $order)
     {
+        $customerNumber = $this->config->getCustomerNumber();
+
+        $parcelId = $customerNumber;
+        $creditMemoCollection = $order->getCreditmemosCollection();
+        $creditMemoId = '';
+        foreach ($creditMemoCollection as $creditMemo) {
+            $creditMemoId = $creditMemo->getIncrementId();
+        }
+        $parcelId .= str_pad($creditMemoId, 10, '0', STR_PAD_LEFT);
+
+        $associatedParcelId = $customerNumber;
+        $shipmentCollection = $order->getShipmentsCollection();
+        $shipmentId = '';
+        foreach ($shipmentCollection as $shipment) {
+            $shipmentId = $shipment->getIncrementId();
+        }
+        $associatedParcelId .= str_pad($shipmentId, 10, '0', STR_PAD_LEFT);
+
+        $billingAddress = $order->getBillingAddress();
+        $streets = $billingAddress->getStreet();
+        $street = $streets[0] ?? '';
+
         $body = [
-            "reference_order_number" => $order->getIncrementId(),
+            'order' => [
+                'service_type' => 'LOCKER_RETURN',
+                'parcel_id' => $parcelId,
+                'has_waybill' => false, // require waybill integration
+                'order_number' => $this->config->getCustomerNumber(),
+                'associated_order' => [
+                    'parcel_id' => $associatedParcelId,
+                    'order_number' => $order->getIncrementId()
+                ],
+                'sender' => [
+                    "name" => $order->getCustomerFirstname() . ' ' . $order->getCustomerLastname(),
+                    "street" => $street,
+                    "zip" => $billingAddress->getPostcode(),
+                    "city" => $billingAddress->getCity(),
+                    "country_code" => $billingAddress->getCountryId(),
+                    "mobile_phone_number" => $billingAddress->getTelephone(),
+                    "home_phone_number" => $billingAddress->getTelephone(),
+                    "work_phone_number" => $billingAddress->getTelephone(),
+                    "email_address" => $order->getCustomerEmail()
+                ],
+                'recipient' => [
+                    "name" => $this->config->getStoreName(),
+                    "street" => $this->config->getStoreStreet1(),
+                    "street2" => $this->config->getStoreStreet2(),
+                    "zip" => $this->config->getStoreZip(),
+                    "city" => $this->config->getStoreCity(),
+                    "country_code" => $this->config->getStoreCountry()
+                ]
+            ]
         ];
         $this->logger->debug(
             'Instabox CreateReturn Preflight',
