@@ -44,13 +44,16 @@ class PrintShipmentLabel extends Action
         $orderId = $this->getRequest()->getParam('order_id');
         if ($orderId) {
             $order = $this->orderRepository->get($orderId);
-            if ($pdf = $this->api->createShipmentLabel($order)) {
-                $this->fileFactory->create(
-                    $pdf['name'],
-                    $pdf['content'],
-                    DirectoryList::ROOT,
-                    'application/pdf'
-                );
+            $shipmentCollection = $order->getShipmentsCollection();
+            foreach ($shipmentCollection as $shipment) {
+                if ($pdf = $this->api->createShipmentLabel($shipment->getIncrementId())) {
+                    $this->fileFactory->create(
+                        $pdf['name'],
+                        $pdf['content'],
+                        DirectoryList::ROOT,
+                        'application/pdf'
+                    );
+                }
             }
         }
         $this->_redirect($this->getUrl('sales/order/view/order_id/' . $orderId));

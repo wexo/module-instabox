@@ -662,18 +662,13 @@ class Api
     ];
 
     /***
-     * @param OrderInterface $order
+     * @param int $shipmentId
      * @return false|mixed
      * @throws Throwable
      */
-    public function createShipmentLabel(OrderInterface $order)
+    public function createShipmentLabel(int $shipmentId)
     {
         $shipmentParcelId = $this->config->getCustomerNumber();
-        $shipmentCollection = $order->getShipmentsCollection();
-        $shipmentId = '';
-        foreach ($shipmentCollection as $shipment) {
-            $shipmentId = $shipment->getIncrementId();
-        }
         $shipmentParcelId .= str_pad($shipmentId, 10, '0', STR_PAD_LEFT);
 
         $body = [

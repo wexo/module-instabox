@@ -9,11 +9,11 @@ class Button
     public function beforeSetLayout(OrderView $subject)
     {
         $subject->addButton(
-            'order_print_shipment_label',
+            'order_print_shipment_labels',
             [
-                'label' => __('Print Shipment Label'),
-                'class' => __('print-shipment-label'),
-                'id' => 'order-view-print-shipment-label',
+                'label' => __('Print Shipment Labels'),
+                'class' => __('print-shipment-labels'),
+                'id' => 'order-view-print-shipment-labels',
                 'onclick' => 'setLocation(\'' . $subject->getUrl('wexo_instabox/printLabel/printShipmentLabel') . '\')'
             ]
         );
