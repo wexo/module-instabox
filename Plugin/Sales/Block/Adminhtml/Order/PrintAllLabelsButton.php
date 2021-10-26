@@ -4,7 +4,7 @@ namespace Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Order;
 
 use Magento\Sales\Block\Adminhtml\Order\View as OrderView;
 
-class Button
+class PrintAllLabelsButton
 {
     public function beforeSetLayout(OrderView $subject)
     {
