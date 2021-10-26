@@ -9,7 +9,7 @@ use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Wexo\Instabox\Model\Api;
 
-class PrintShipmentLabel extends Action
+class PrintAllShipmentLabels extends Action
 {
     /**
      * @var Api

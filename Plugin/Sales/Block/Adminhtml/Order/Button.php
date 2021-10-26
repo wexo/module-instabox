@@ -14,7 +14,9 @@ class Button
                 'label' => __('Print Shipment Labels'),
                 'class' => __('print-shipment-labels'),
                 'id' => 'order-view-print-shipment-labels',
-                'onclick' => 'setLocation(\'' . $subject->getUrl('wexo_instabox/printLabel/printShipmentLabel') . '\')'
+                'onclick' => 'setLocation(\'' .
+                    $subject->getUrl('wexo_instabox/printLabel/printAllShipmentLabels') .
+                    '\')'
             ]
         );
     }
