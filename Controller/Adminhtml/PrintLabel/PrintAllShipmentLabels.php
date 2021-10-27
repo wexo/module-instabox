@@ -7,6 +7,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Throwable;
 use Wexo\Instabox\Model\Api;
 
 class PrintAllShipmentLabels extends Action
@@ -46,16 +47,19 @@ class PrintAllShipmentLabels extends Action
             $order = $this->orderRepository->get($orderId);
             $shipmentCollection = $order->getShipmentsCollection();
             foreach ($shipmentCollection as $shipment) {
-                if ($pdf = $this->api->createShipmentLabel($shipment->getIncrementId())) {
-                    $this->fileFactory->create(
-                        $pdf['name'],
-                        $pdf['content'],
-                        DirectoryList::ROOT,
-                        'application/pdf'
-                    );
+                try {
+                    if ($pdf = $this->api->createShipmentLabel($shipment->getIncrementId())) {
+                        $this->fileFactory->create(
+                            $pdf['name'],
+                            $pdf['content'],
+                            DirectoryList::VAR_DIR,
+                            'application/pdf'
+                        );
+                    }
+                } catch (Throwable $e) {
+                    $this->_redirect($this->getUrl('sales/order/view/order_id/' . $orderId));
                 }
             }
         }
-        $this->_redirect($this->getUrl('sales/order/view/order_id/' . $orderId));
     }
 }
