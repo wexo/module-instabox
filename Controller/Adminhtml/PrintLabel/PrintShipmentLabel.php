@@ -42,24 +42,24 @@ class PrintShipmentLabel extends Action
      */
     public function execute()
     {
-//        $redirect = false;
-//        $shipmentId = $this->getRequest()->getParam('shipment_id');
-//        if ($shipment = $this->shipmentRepository->get($shipmentId)) {
-//            try {
-//                $pdf = $this->api->createShipmentLabel($shipment->getIncrementId());
-//                $this->fileFactory->create(
-//                    $pdf['name'],
-//                    $pdf['content'],
-//                    DirectoryList::VAR_DIR,
-//                    'application/pdf'
-//                );
-//            } catch (Throwable $e) {
-//                $redirect = 'sales/shipment/view/shipment_id' . $shipmentId;
-//            }
-//        }
-//
-//        if ($redirect) {
-//            $this->_redirect($this->getUrl($redirect));
-//        }
+        $redirect = false;
+        $shipmentId = $this->getRequest()->getParam('shipment_id');
+        if ($shipment = $this->shipmentRepository->get($shipmentId)) {
+            try {
+                $pdf = $this->api->createShipmentLabel($shipment->getIncrementId());
+                $this->fileFactory->create(
+                    $pdf['name'],
+                    $pdf['content'],
+                    DirectoryList::VAR_DIR,
+                    'application/pdf'
+                );
+            } catch (Throwable $e) {
+                $redirect = 'sales/shipment/view/shipment_id' . $shipmentId;
+            }
+        }
+
+        if ($redirect) {
+            $this->_redirect($this->getUrl($redirect));
+        }
     }
 }
