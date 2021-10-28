@@ -3,7 +3,6 @@
 namespace Wexo\Instabox\Api\Data;
 
 use Magento\Framework\Api\ExtensibleDataInterface;
-use Wexo\Instabox\Model\Data\Instahome;
 
 interface InstahomeInterface extends ExtensibleDataInterface
 {
