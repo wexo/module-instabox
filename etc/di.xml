@@ -27,8 +27,9 @@
                 <item name="green" xsi:type="array">
                     <item name="label" xsi:type="string">Green</item>
                 </item>
-                <item name="instabikes" xsi:type="array">
-                    <item name="label" xsi:type="string">Instabikes</item>
+                <item name="instahome" xsi:type="array">
+                    <item name="label" xsi:type="string">Instahome</item>
+                    <item name="type" xsi:type="object">Wexo\Instabox\Model\MethodType\Instahome</item>
                 </item>
                 <item name="collect_in_store" xsi:type="array">
                     <item name="label" xsi:type="string">Collect In Store</item>
