@@ -11,6 +11,7 @@
                 <title>Instabox</title>
                 <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.
                 </specificerrmsg>
+                <max_instahome_deliveries>0</max_instahome_deliveries>
             </instabox>
         </carriers>
     </default>
