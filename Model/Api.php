@@ -22,6 +22,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Wexo\Instabox\Api\Data\InstahomeInterface;
 use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
@@ -163,6 +164,45 @@ class Api
         });
     }
 
+    public function getInstahome(
+        $email,
+        $phone,
+        $street,
+        $zip,
+        $city,
+        $countryCode,
+        $currencyCode,
+        $items,
+        $grandTotal
+    ) {
+        if (empty($zip)) {
+            return '';
+        }
+
+        $body = $this->getAvailabilityBody(
+            $email,
+            $phone,
+            $street,
+            $zip,
+            $city,
+            $countryCode,
+            $currencyCode,
+            $items,
+            $grandTotal,
+            'INSTAHOME'
+        );
+
+        return $this->request(function (Client $client) use ($body) {
+            return $client->post(self::AVAILABILITY_URI, [
+                'json' => $body
+            ]);
+        }, function (Response $response, $content) {
+            $this->saveShowAsOption($content);
+            $this->saveAvailabilityToken($content);
+            return $this->mapInstahomeDeliveries($content);
+        });
+    }
+
     public function saveShowAsOption($content)
     {
         if (isset($content['availability'])) {
@@ -197,7 +237,8 @@ class Api
         $countryCode,
         $currencyCode,
         $items,
-        $grandTotal
+        $grandTotal,
+        $serviceType = 'EXPRESS'
     ) {
         $products = [];
         $weight = 0;
@@ -230,7 +271,7 @@ class Api
             ],
             'services' => [
                 [
-                    'service_type' => 'EXPRESS',
+                    'service_type' => $serviceType,
                     'options' => [
                         'num_delivery_options' => 25,
                         'num_dispatch_options' => 5,
@@ -744,5 +785,39 @@ class Api
 
             return $parcelShopObject;
         }, $parcelShops);
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    protected function mapInstahomeDeliveries($content)
+    {
+        $valid = $content['status'] === 'OK' ?? false;
+        if (!$valid) {
+            return [];
+        }
+
+        $availability = $content['availability'] ?? [];
+        $instahome = $availability['INSTAHOME'] ?? [];
+        $dispatchOptions = $instahome['dispatch_options'][0] ?? [];
+        $instahomeDeliveries = $dispatchOptions['delivery_options'] ?? [];
+
+        return array_map(function ($delivery) {
+            $instahomeDeliveryObject = $this->objectFactory->create(InstahomeInterface::class, []);
+
+            $instahomeDeliveryObject->setNumber($delivery['sort_code']);
+            $instahomeDeliveryObject->setDescription($delivery['description']);
+            $instahomeDeliveryObject->setCutoffDatetimeUtc($delivery['cutoff_datetime_utc']);
+
+            $eta = $delivery['eta'];
+            $instahomeDeliveryObject->setDatetimeUtc($eta['datetime_utc']);
+            $instahomeDeliveryObject->setEarliestPossibleDeliveryUtc($eta['earliest_possible_eta_utc']);
+            $instahomeDeliveryObject->setLastPossibleDeliveryUtc($eta['last_possible_eta_utc']);
+            $instahomeDeliveryObject->setDatetimeLocal($eta['datetime_local']);
+            $instahomeDeliveryObject->setTextLocal($eta['text_local']);
+
+            return $instahomeDeliveryObject;
+        }, $instahomeDeliveries);
     }
 }
