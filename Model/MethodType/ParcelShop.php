@@ -91,7 +91,7 @@ class ParcelShop extends AbstractParcelShop implements MethodTypeHandlerInterfac
         $this->dataObjectHelper->populateWithArray($parcelShop, $shippingData['parcelShop'], $this->parcelShopClass);
 
         if ($parcelShop->getNumber()) {
-            $prebooking = $this->api->createPreBooking($parcelShop, $quote, $order);
+            $prebooking = $this->api->createPreBooking($parcelShop->getNumber(), $quote, $order);
             $shippingData['instabox'] = [
                 'prebooking' => $prebooking
             ];

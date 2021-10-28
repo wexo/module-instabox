@@ -426,12 +426,12 @@ class Api
      * Creates a Prebooking in Instabox
      * https://www.instadocs.se/docs#section-5
      *
-     * @param  $parcelShop
+     * @param  $sortCode
      * @param  $quote
      * @param  $order
      * @return void
      */
-    public function createPreBooking($parcelShop, $quote, $order)
+    public function createPreBooking($sortCode, $quote, $order)
     {
         $availabilityToken = $this->getAvailabilityToken();
         $method = explode('_', $order->getShippingMethod());
@@ -446,7 +446,7 @@ class Api
         }
 
         $deliveryOption = [
-            'sort_code' => $parcelShop->getNumber()
+            'sort_code' => $sortCode
         ];
 
         $body = [
@@ -459,7 +459,7 @@ class Api
 
         $this->logger->debug('InstaBox CreatePreBooking preflight', [
             'body' => $body,
-            'parcelshop' => $parcelShop,
+            'sort_code' => $sortCode,
             'quote' => $quote,
             'order' => $order
         ]);
