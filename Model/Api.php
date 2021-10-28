@@ -175,6 +175,7 @@ class Api
         $items,
         $grandTotal
     ) {
+        $this->session->setInstahomeShowAsOption(false);
         if (empty($zip) || empty($countryCode)) {
             return '';
         }
@@ -197,7 +198,7 @@ class Api
                 'json' => $body
             ]);
         }, function (Response $response, $content) {
-            $this->saveShowAsOption($content);
+            $this->saveShowInstahomeAsOption($content);
             $this->saveAvailabilityToken($content);
             return $this->mapInstahomeDeliveries($content);
         });
@@ -213,9 +214,27 @@ class Api
         }
     }
 
+    public function saveShowInstahomeAsOption($content)
+    {
+        if (isset($content['availability'])) {
+            $availability = $content['availability'];
+            $type = reset($availability);
+            $showAsOption = $type['show_as_option'] ?? false;
+            $this->session->setInstahomeShowAsOption($showAsOption);
+            if (1===1) {
+
+            }
+        }
+    }
+
     public function getShowAsOption()
     {
         return $this->session->getInstaboxShowAsOption();
+    }
+
+    public function getShowInstahomeAsOption()
+    {
+        return $this->session->getInstahomeShowAsOption();
     }
 
     public function saveAvailabilityToken($content)
