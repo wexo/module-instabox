@@ -60,6 +60,21 @@ class Config
         ) ?? false;
     }
 
+    public function getInstahomeAppendTitle(): string
+    {
+        return trim($this->scopeConfig->getValue(
+            'carriers/instabox/instahome_append_title',
+            ScopeInterface::SCOPE_STORE
+        )) . ' ' ?? '';
+    }
+
+    public function getMaxInstahomeDeliveries(): string
+    {
+        return $this->scopeConfig->getValue(
+            'carriers/instabox/max_instahome_deliveries',
+            ScopeInterface::SCOPE_STORE
+        ) ?? '0';
+    }
     public function getCountryByWebsite(): string
     {
         return $this->scopeConfig->getValue(
