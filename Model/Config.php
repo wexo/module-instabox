@@ -60,10 +60,10 @@ class Config
         ) ?? false;
     }
 
-    public function getInstahomeAppendTitle(): string
+    public function getInstahomePrependTitle(): string
     {
         return trim($this->scopeConfig->getValue(
-            'carriers/instabox/instahome_append_title',
+            'carriers/instabox/instahome_prepend_title',
             ScopeInterface::SCOPE_STORE
         )) . ' ' ?? '';
     }
