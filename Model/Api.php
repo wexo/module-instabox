@@ -175,7 +175,7 @@ class Api
         $items,
         $grandTotal
     ) {
-        if (empty($zip)) {
+        if (empty($zip) || empty($countryCode)) {
             return '';
         }
 
