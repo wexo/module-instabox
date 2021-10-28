@@ -58,7 +58,9 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
      * @param MethodFactory $methodFactory
      * @param ResultFactory $resultFactory
      * @param Api $instaboxApi
+     * @param \Wexo\Instabox\Model\Config $config
      * @param Repository $assetRepository
+     * @param Json $json
      * @param StoreManagerInterface $storeManager
      * @param MethodTypeHandlerInterface|null $defaultMethodTypeHandler
      * @param array $methodTypeHandlers
