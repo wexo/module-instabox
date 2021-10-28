@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Wexo\Instabox\Api\Carrier\InstaboxInterface" type="Wexo\Instabox\Model\Carrier\Instabox"/>
     <preference for="Wexo\Instabox\Api\Data\ParcelShopInterface" type="Wexo\Instabox\Model\Data\ParcelShop"/>
+    <preference for="Wexo\Instabox\Api\Data\InstahomeInterface" type="Wexo\Instabox\Model\Data\Instahome"/>
 
     <type name="Wexo\Shipping\Model\ComponentManagement">
         <arguments>
