@@ -146,6 +146,43 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
                 continue;
             }
 
+            if ($rate->getMethodType() === 'instahome') {
+                $requestData = $request->getData();
+                $instahomeDeliveries = $this->instaboxApi->getInstahome(
+                    $quote->getCustomerEmail(),
+                    $quote->getBillingAddress()->getTelephone(),
+                    $requestData['dest_street'],
+                    $requestData['dest_postcode'],
+                    $requestData['dest_city'],
+                    $requestData['dest_country_id'],
+                    $requestData['base_currency']->getCurrencyCode(),
+                    $requestData['all_items'],
+                    $requestData['package_value_with_discount']
+                );
+                if ($this->instaboxApi->getShowInstahomeAsOption() &&
+                    isset($instahomeDeliveries) &&
+                    !empty($instahomeDeliveries)) {
+                    $maxInstahomeDeliveries = $this->config->getMaxInstahomeDeliveries();
+                    $x = 0;
+                    foreach ($instahomeDeliveries as $delivery) {
+                        if ($maxInstahomeDeliveries > 0 && $x >= $maxInstahomeDeliveries) {
+                            break;
+                        }
+                        $method = $this->methodFactory->create();
+                        $method->setData('carrier', $this->_code);
+                        $method->setData('method', $this->makeMethodCode($rate) . $x);
+                        $method->setData(
+                            'method_title',
+                            $this->config->getInstahomePrependTitle() . $delivery['description']
+                        );
+
+                        $result->append($method);
+                        $x++;
+                    }
+                }
+                continue;
+            }
+
             try {
                 $parcelShopTitle = $this->instaboxApi->getFirstParcelShopName();
                 $showAsOption = $this->instaboxApi->getShowAsOption();
