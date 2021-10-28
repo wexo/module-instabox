@@ -9,6 +9,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Wexo\Instabox\Model\Api;
 use Wexo\Shipping\Api\Carrier\MethodTypeHandlerInterface;
 use Wexo\Shipping\Model\MethodType\AbstractParcelShop;
