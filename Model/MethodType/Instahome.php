@@ -7,8 +7,8 @@ use Magento\Framework\Data\ObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Throwable;
 use Wexo\Instabox\Model\Api;
 use Wexo\Shipping\Api\Carrier\MethodTypeHandlerInterface;
 use Wexo\Shipping\Model\MethodType\AbstractParcelShop;
@@ -18,23 +18,23 @@ class Instahome extends AbstractParcelShop implements MethodTypeHandlerInterface
     /**
      * @var Json
      */
-    private $jsonSerializer;
+    protected $jsonSerializer;
     /**
      * @var DataObjectHelper
      */
-    private $dataObjectHelper;
+    protected $dataObjectHelper;
     /**
      * @var ObjectFactory
      */
-    private $objectFactory;
-    /**
-     * @var null
-     */
-    private $parcelShopClass;
+    protected $objectFactory;
     /**
      * @var Api
      */
-    private $api;
+    protected $api;
+    /**
+     * @var null
+     */
+    protected $parcelShopClass;
 
     public function __construct(
         Json $jsonSerializer,
@@ -75,42 +75,22 @@ class Instahome extends AbstractParcelShop implements MethodTypeHandlerInterface
     /**
      * @param CartInterface $quote
      * @param OrderInterface $order
-     * @throws LocalizedException
+     * @throws LocalizedException|Throwable
      */
-    // TODO: Change this to do it correctly with instahome
     public function saveOrderInformation(CartInterface $quote, OrderInterface $order)
     {
-        $shippingData = $this->jsonSerializer->unserialize($order->getData('wexo_shipping_data'));
+        $shippingMethod = $order->getShippingMethod();
+        $shippingMethod = explode('_', $shippingMethod);
+        $sortCode = count($shippingMethod) === 3 ? array_pop($shippingMethod) : '0';
 
-        if (!isset($shippingData['parcelShop'])) {
-            throw new LocalizedException(__('Service Point must be set!'));
-        }
-
-        /** @var ParcelShopInterface $parcelShop */
-        $parcelShop = $this->objectFactory->create($this->parcelShopClass, []);
-        $this->dataObjectHelper->populateWithArray($parcelShop, $shippingData['parcelShop'], $this->parcelShopClass);
-
-        if ($parcelShop->getNumber()) {
-            $prebooking = $this->api->createPreBooking($parcelShop, $quote, $order);
+        if ($sortCode) {
+            $prebooking = $this->api->createPreBooking($sortCode, $quote, $order);
             $shippingData['instabox'] = [
                 'prebooking' => $prebooking
             ];
             $order->setData('wexo_shipping_data', $this->jsonSerializer->serialize($shippingData));
-            // fetch availability token from session and save token on order
-            $order->getShippingAddress()->addData([
-                OrderAddressInterface::COMPANY => $parcelShop->getCompanyName(),
-                OrderAddressInterface::STREET => [
-                    $parcelShop->getStreetName(),
-                    $parcelShop->getNumber()
-                ],
-                OrderAddressInterface::POSTCODE => $parcelShop->getZipCode(),
-                OrderAddressInterface::CITY => $parcelShop->getCity(),
-                OrderAddressInterface::REGION => '',
-                OrderAddressInterface::FAX => '',
-                'save_in_address_book' => 0,
-            ]);
         } else {
-            throw new LocalizedException(__('Service Point number was not found!'));
+            throw new LocalizedException(__('Sort code was not found'));
         }
     }
 }
