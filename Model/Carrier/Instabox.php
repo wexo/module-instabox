@@ -175,6 +175,9 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
                             'method_title',
                             $this->config->getInstahomePrependTitle() . $delivery['description']
                         );
+                        $method->setPrice(
+                            $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
+                        );
 
                         $result->append($method);
                         $x++;
