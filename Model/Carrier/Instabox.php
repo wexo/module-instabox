@@ -170,6 +170,7 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
                         }
                         $method = $this->methodFactory->create();
                         $method->setData('carrier', $this->_code);
+                        $method->setData('carrier_title', $this->getTitle());
                         $method->setData('method', $this->makeMethodCode($rate) . '-' . $delivery['number']);
                         $method->setData(
                             'method_title',
