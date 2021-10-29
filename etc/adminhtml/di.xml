@@ -4,6 +4,6 @@
         <plugin name="sales_order_adminhtml_view_print_all_labels" type="Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Order\PrintAllLabelsButton"/>
     </type>
     <type name="Magento\Shipping\Block\Adminhtml\View">
-        <plugin name="mdasmdasmdoasmdoaspmdoasp" type="Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Shipment\PrintLabel"/>
+        <plugin name="shipment_adminhtml_view_print_label" type="Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Shipment\PrintLabel"/>
     </type>
 </config>
