@@ -80,8 +80,8 @@ class Instahome extends AbstractParcelShop implements MethodTypeHandlerInterface
     public function saveOrderInformation(CartInterface $quote, OrderInterface $order)
     {
         $shippingMethod = $order->getShippingMethod();
-        $shippingMethod = explode('_', $shippingMethod);
-        $sortCode = count($shippingMethod) === 3 ? array_pop($shippingMethod) : '0';
+        $shippingMethod = explode('-', $shippingMethod);
+        $sortCode = $shippingMethod[1] ?? false;
 
         if ($sortCode) {
             $prebooking = $this->api->createPreBooking($sortCode, $quote, $order);
