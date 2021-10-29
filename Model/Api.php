@@ -510,6 +510,9 @@ class Api
         $parcelId = $this->config->getCustomerNumber();
         $parcelId .= str_pad($shipment->getIncrementId(), 10, '0', STR_PAD_LEFT);
         $preBooking = $instabox['prebooking']['prebooking'];
+        if ($preBooking['service_type'] === 'HOMEDELIVERY') {
+            $preBooking['service_type'] = 'INSTAHOME';
+        }
         $availabilityToken = $preBooking['availability_token'];
         $billingAddress = $order->getBillingAddress();
         $streets = $billingAddress->getStreet();
