@@ -221,9 +221,6 @@ class Api
             $type = reset($availability);
             $showAsOption = $type['show_as_option'] ?? false;
             $this->session->setInstahomeShowAsOption($showAsOption);
-            if (1===1) {
-
-            }
         }
     }
 
