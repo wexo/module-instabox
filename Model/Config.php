@@ -60,7 +60,7 @@ class Config
         ) ?? false;
     }
 
-    public function getInstahomePrependTitle(): string
+    public function getInstahomePrependTitle()
     {
         return trim($this->scopeConfig->getValue(
             'carriers/instabox/instahome_prepend_title',
@@ -68,14 +68,14 @@ class Config
         )) . ' ' ?? '';
     }
 
-    public function getMaxInstahomeDeliveries(): string
+    public function getMaxInstahomeDeliveries()
     {
         return $this->scopeConfig->getValue(
             'carriers/instabox/max_instahome_deliveries',
             ScopeInterface::SCOPE_STORE
         ) ?? '0';
     }
-    public function getCountryByWebsite(): string
+    public function getCountryByWebsite()
     {
         return $this->scopeConfig->getValue(
             'general/country/default',
@@ -83,7 +83,7 @@ class Config
         );
     }
 
-    public function getStoreName(): string
+    public function getStoreName()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/name',
@@ -91,7 +91,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStorePhone(): string
+    public function getStorePhone()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/phone',
@@ -99,7 +99,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStoreZip(): string
+    public function getStoreZip()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/zip',
@@ -107,7 +107,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStoreCity(): string
+    public function getStoreCity()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/city',
@@ -115,7 +115,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStoreStreet1(): string
+    public function getStoreStreet1()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/street_line1',
@@ -123,7 +123,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStoreStreet2(): string
+    public function getStoreStreet2()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/street_line1',
@@ -131,7 +131,7 @@ class Config
         ) ?? '';
     }
 
-    public function getStoreCountry(): string
+    public function getStoreCountry()
     {
         return $this->scopeConfig->getValue(
             'general/store_information/country_id',

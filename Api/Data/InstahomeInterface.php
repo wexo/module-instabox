@@ -24,7 +24,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setNumber(string $string): InstahomeInterface;
+    public function setNumber(string $string);
 
     /**
      * @return string|null
@@ -35,7 +35,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setDescription(string $string): InstahomeInterface;
+    public function setDescription(string $string);
 
     /**
      * @return string|null
@@ -46,7 +46,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setCutoffDatetimeUtc(string $string): InstahomeInterface;
+    public function setCutoffDatetimeUtc(string $string);
 
     /**
      * @return string|null
@@ -57,7 +57,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setDatetimeUtc(string $string): InstahomeInterface;
+    public function setDatetimeUtc(string $string);
 
     /**
      * @return string|null
@@ -68,7 +68,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setEarliestPossibleDelivery(string $string): InstahomeInterface;
+    public function setEarliestPossibleDelivery(string $string);
 
     /**
      * @return string|null
@@ -79,7 +79,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setLastPossibleDelivery(string $string): InstahomeInterface;
+    public function setLastPossibleDelivery(string $string);
 
     /**
      * @return string|null
@@ -90,7 +90,7 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setDatetimeLocal(string $string): InstahomeInterface;
+    public function setDatetimeLocal(string $string);
 
     /**
      * @return string|null
@@ -101,5 +101,5 @@ interface InstahomeInterface extends ExtensibleDataInterface
      * @param string $string
      * @return InstahomeInterface
      */
-    public function setTextLocal(string $string): InstahomeInterface;
+    public function setTextLocal(string $string);
 }

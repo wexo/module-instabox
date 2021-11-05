@@ -59,7 +59,7 @@ class Instahome extends AbstractParcelShop implements MethodTypeHandlerInterface
     /**
      * @return string
      */
-    public function getTitle(): string
+    public function getTitle()
     {
         return __('Instahome');
     }
@@ -67,7 +67,7 @@ class Instahome extends AbstractParcelShop implements MethodTypeHandlerInterface
     /**
      * @return string
      */
-    public function getCode(): string
+    public function getCode()
     {
         return 'instahome';
     }

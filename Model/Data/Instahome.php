@@ -18,7 +18,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setNumber(string $string): InstahomeInterface
+    public function setNumber(string $string)
     {
         return $this->setData(static::NUMBER, $string);
     }
@@ -34,7 +34,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setDescription(string $string): InstahomeInterface
+    public function setDescription(string $string)
     {
         return $this->setData(static::DESCRIPTION, $string);
     }
@@ -50,7 +50,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setCutoffDatetimeUtc(string $string): InstahomeInterface
+    public function setCutoffDatetimeUtc(string $string)
     {
         return $this->setData(static::CUTOFF_DATETIME_UTC, $string);
     }
@@ -66,7 +66,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setDatetimeUtc(string $string): InstahomeInterface
+    public function setDatetimeUtc(string $string)
     {
         return $this->setData(static::DATETIME_UTC, $string);
     }
@@ -82,7 +82,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setEarliestPossibleDelivery(string $string): InstahomeInterface
+    public function setEarliestPossibleDelivery(string $string)
     {
         return $this->setData(static::EARLIEST_POSSIBLE_DELIVERY, $string);
     }
@@ -98,7 +98,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setLastPossibleDelivery(string $string): InstahomeInterface
+    public function setLastPossibleDelivery(string $string)
     {
         return $this->setData(static::LAST_POSSIBLE_DELIVERY, $string);
     }
@@ -114,7 +114,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setDatetimeLocal(string $string): InstahomeInterface
+    public function setDatetimeLocal(string $string)
     {
         return $this->setData(static::DATETIME_LOCAL, $string);
     }
@@ -130,7 +130,7 @@ class Instahome extends DataObject implements InstahomeInterface
     /**
      * @inheridoc
      */
-    public function setTextLocal(string $string): InstahomeInterface
+    public function setTextLocal(string $string)
     {
         return $this->setData(static::TEXT_LOCAL, $string);
     }
