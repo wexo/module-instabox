@@ -9,6 +9,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Wexo\Instabox\Model\Api;
 use Wexo\Shipping\Api\Carrier\MethodTypeHandlerInterface;
 use Wexo\Shipping\Model\MethodType\AbstractParcelShop;
@@ -91,7 +92,7 @@ class ParcelShop extends AbstractParcelShop implements MethodTypeHandlerInterfac
         $this->dataObjectHelper->populateWithArray($parcelShop, $shippingData['parcelShop'], $this->parcelShopClass);
 
         if ($parcelShop->getNumber()) {
-            $prebooking = $this->api->createPreBooking($parcelShop, $quote, $order);
+            $prebooking = $this->api->createPreBooking($parcelShop->getNumber(), $quote, $order);
             $shippingData['instabox'] = [
                 'prebooking' => $prebooking
             ];

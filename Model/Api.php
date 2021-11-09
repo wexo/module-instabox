@@ -21,6 +21,8 @@ use Magento\Store\Api\StoreManagementInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
+use Wexo\Instabox\Api\Data\InstahomeInterface;
 use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
@@ -30,9 +32,10 @@ class Api
     const AVAILABILITY_URI = 'https://availability.instabox.se/v3/availability';
     const PREBOOKING_URI = 'https://webshopintegrations.instabox.se/v2/prebookings';
     const ORDER_URI = 'https://webshopintegrations.instabox.se/v2/orders';
-    const RETURN_URI = 'https://webshopintegrations.instabox.se/returns';
+    const RETURN_URI = 'https://webshopintegrations.instabox.se/v2/orders';
     const TRACKING_URI = 'https://track.instabox.io';
     const CACHE_KEY_ACCESS_TOKEN = 'instabox_access_token';
+    const LABEL_GENERATOR = 'https://waybill-generator-api.instabox.se/v1/waybills';
 
     /**
      * @var ClientFactory
@@ -161,6 +164,46 @@ class Api
         });
     }
 
+    public function getInstahome(
+        $email,
+        $phone,
+        $street,
+        $zip,
+        $city,
+        $countryCode,
+        $currencyCode,
+        $items,
+        $grandTotal
+    ) {
+        $this->session->setInstahomeShowAsOption(false);
+        if (empty($zip) || empty($countryCode)) {
+            return '';
+        }
+
+        $body = $this->getAvailabilityBody(
+            $email,
+            $phone,
+            $street,
+            $zip,
+            $city,
+            $countryCode,
+            $currencyCode,
+            $items,
+            $grandTotal,
+            'INSTAHOME'
+        );
+
+        return $this->request(function (Client $client) use ($body) {
+            return $client->post(self::AVAILABILITY_URI, [
+                'json' => $body
+            ]);
+        }, function (Response $response, $content) {
+            $this->saveShowInstahomeAsOption($content);
+            $this->saveAvailabilityToken($content);
+            return $this->mapInstahomeDeliveries($content);
+        });
+    }
+
     public function saveShowAsOption($content)
     {
         if (isset($content['availability'])) {
@@ -171,9 +214,24 @@ class Api
         }
     }
 
+    public function saveShowInstahomeAsOption($content)
+    {
+        if (isset($content['availability'])) {
+            $availability = $content['availability'];
+            $type = reset($availability);
+            $showAsOption = $type['show_as_option'] ?? false;
+            $this->session->setInstahomeShowAsOption($showAsOption);
+        }
+    }
+
     public function getShowAsOption()
     {
         return $this->session->getInstaboxShowAsOption();
+    }
+
+    public function getShowInstahomeAsOption()
+    {
+        return $this->session->getInstahomeShowAsOption();
     }
 
     public function saveAvailabilityToken($content)
@@ -195,7 +253,8 @@ class Api
         $countryCode,
         $currencyCode,
         $items,
-        $grandTotal
+        $grandTotal,
+        $serviceType = 'EXPRESS'
     ) {
         $products = [];
         $weight = 0;
@@ -228,7 +287,7 @@ class Api
             ],
             'services' => [
                 [
-                    'service_type' => 'EXPRESS',
+                    'service_type' => $serviceType,
                     'options' => [
                         'num_delivery_options' => 25,
                         'num_dispatch_options' => 5,
@@ -308,14 +367,18 @@ class Api
      * @param callable $transformer
      * @return mixed
      */
-    public function request(callable $func, callable $transformer = null)
+    public function request(callable $func, callable $transformer = null, $json = true)
     {
         try {
             /** @var Response $response */
             $response = $func($this->getClient());
 
             if ($response->getStatusCode() >= 200 && $response->getStatusCode() <= 299) {
-                $content = $this->jsonSerializer->unserialize($response->getBody()->__toString());
+                if ($json) {
+                    $content = $this->jsonSerializer->unserialize($response->getBody()->__toString());
+                } else {
+                    $content = $response->getBody()->__toString();
+                }
                 return $transformer === null ? $content : $transformer($response, $content);
             }
 
@@ -360,12 +423,12 @@ class Api
      * Creates a Prebooking in Instabox
      * https://www.instadocs.se/docs#section-5
      *
-     * @param  $parcelShop
+     * @param  $sortCode
      * @param  $quote
      * @param  $order
      * @return void
      */
-    public function createPreBooking($parcelShop, $quote, $order)
+    public function createPreBooking($sortCode, $quote, $order)
     {
         $availabilityToken = $this->getAvailabilityToken();
         $method = explode('_', $order->getShippingMethod());
@@ -380,7 +443,7 @@ class Api
         }
 
         $deliveryOption = [
-            'sort_code' => $parcelShop->getNumber()
+            'sort_code' => $sortCode
         ];
 
         $body = [
@@ -393,7 +456,7 @@ class Api
 
         $this->logger->debug('InstaBox CreatePreBooking preflight', [
             'body' => $body,
-            'parcelshop' => $parcelShop,
+            'sort_code' => $sortCode,
             'quote' => $quote,
             'order' => $order
         ]);
@@ -412,7 +475,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreatePreBooking ' . $t->getMessage());
             throw $t;
         }
@@ -444,6 +507,9 @@ class Api
         $parcelId = $this->config->getCustomerNumber();
         $parcelId .= str_pad($shipment->getIncrementId(), 10, '0', STR_PAD_LEFT);
         $preBooking = $instabox['prebooking']['prebooking'];
+        if ($preBooking['service_type'] === 'HOMEDELIVERY') {
+            $preBooking['service_type'] = 'INSTAHOME';
+        }
         $availabilityToken = $preBooking['availability_token'];
         $billingAddress = $order->getBillingAddress();
         $streets = $billingAddress->getStreet();
@@ -526,7 +592,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreateBooking ' . $t->getMessage());
             throw $t;
         }
@@ -534,15 +600,65 @@ class Api
 
     /**
      * Creates returns in Instabox
-     * https://www.instadocs.se/docs#section-7
+     * https://www.instadocs.se/docs#section-8
      *
      * @param OrderInterface $order
      * @return void
      */
     public function createReturn(OrderInterface $order)
     {
+        $customerNumber = $this->config->getCustomerNumber();
+
+        $parcelId = $customerNumber;
+        $creditMemoCollection = $order->getCreditmemosCollection();
+        $creditMemoId = '';
+        foreach ($creditMemoCollection as $creditMemo) {
+            $creditMemoId = $creditMemo->getIncrementId();
+        }
+        $parcelId .= str_pad($creditMemoId, 10, '0', STR_PAD_LEFT);
+
+        $associatedParcelId = $customerNumber;
+        $shipmentCollection = $order->getShipmentsCollection();
+        $shipmentId = '';
+        foreach ($shipmentCollection as $shipment) {
+            $shipmentId = $shipment->getIncrementId();
+        }
+        $associatedParcelId .= str_pad($shipmentId, 10, '0', STR_PAD_LEFT);
+
+        $billingAddress = $order->getBillingAddress();
+        $streets = $billingAddress->getStreet();
+        $street = $streets[0] ?? '';
+
         $body = [
-            "reference_order_number" => $order->getIncrementId(),
+            'order' => [
+                'service_type' => 'LOCKER_RETURN',
+                'parcel_id' => $parcelId,
+                'has_waybill' => false, // require waybill integration
+                'order_number' => $this->config->getCustomerNumber(),
+                'associated_order' => [
+                    'parcel_id' => $associatedParcelId,
+                    'order_number' => $order->getIncrementId()
+                ],
+                'sender' => [
+                    "name" => $order->getCustomerFirstname() . ' ' . $order->getCustomerLastname(),
+                    "street" => $street,
+                    "zip" => $billingAddress->getPostcode(),
+                    "city" => $billingAddress->getCity(),
+                    "country_code" => $billingAddress->getCountryId(),
+                    "mobile_phone_number" => $billingAddress->getTelephone(),
+                    "home_phone_number" => $billingAddress->getTelephone(),
+                    "work_phone_number" => $billingAddress->getTelephone(),
+                    "email_address" => $order->getCustomerEmail()
+                ],
+                'recipient' => [
+                    "name" => $this->config->getStoreName(),
+                    "street" => $this->config->getStoreStreet1(),
+                    "street2" => $this->config->getStoreStreet2(),
+                    "zip" => $this->config->getStoreZip(),
+                    "city" => $this->config->getStoreCity(),
+                    "country_code" => $this->config->getStoreCountry()
+                ]
+            ]
         ];
         $this->logger->debug(
             'Instabox CreateReturn Preflight',
@@ -566,7 +682,7 @@ class Api
                 );
                 return $content;
             });
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $this->logger->error('Instabox CreateReturn ' . $t->getMessage());
             throw $t;
         }
@@ -604,6 +720,45 @@ class Api
         5 => 'Saturday',
         6 => 'Sunday'
     ];
+
+    /***
+     * @param int $shipmentId
+     * @return false|mixed
+     * @throws Throwable
+     */
+    public function createShipmentLabel(int $shipmentId)
+    {
+        $shipmentParcelId = $this->config->getCustomerNumber();
+        $shipmentParcelId .= str_pad($shipmentId, 10, '0', STR_PAD_LEFT);
+
+        $body = [
+            'parcel_id' => $shipmentParcelId
+        ];
+        $this->logger->debug(
+            'Instabox CreateShipmentLabel preflight',
+            [
+                'body' => $body
+            ]
+        );
+        try {
+            return $this->request(function (Client $client) use ($body) {
+                $uri = self::LABEL_GENERATOR . '?' . http_build_query($body);
+                return $client->get($uri, [
+                    'header' => [
+                        'ACCEPT' => '*/*'
+                    ]
+                ]);
+            }, function (Response $response, $content) use ($shipmentParcelId) {
+                return [
+                    'content' => $content,
+                    'name' => $shipmentParcelId . '-label.pdf'
+                ];
+            }, false);
+        } catch (Throwable $t) {
+            $this->logger->error('Instabox CreateShipmentLabel ' . $t->getMessage());
+            throw $t;
+        }
+    }
 
     /**
      * @param $content
@@ -649,5 +804,39 @@ class Api
 
             return $parcelShopObject;
         }, $parcelShops);
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    protected function mapInstahomeDeliveries($content)
+    {
+        $valid = $content['status'] === 'OK' ?? false;
+        if (!$valid) {
+            return [];
+        }
+
+        $availability = $content['availability'] ?? [];
+        $instahome = $availability['INSTAHOME'] ?? [];
+        $dispatchOptions = $instahome['dispatch_options'][0] ?? [];
+        $instahomeDeliveries = $dispatchOptions['delivery_options'] ?? [];
+
+        return array_map(function ($delivery) {
+            $instahomeDeliveryObject = $this->objectFactory->create(InstahomeInterface::class, []);
+
+            $instahomeDeliveryObject->setNumber($delivery['sort_code']);
+            $instahomeDeliveryObject->setDescription($delivery['description']);
+            $instahomeDeliveryObject->setCutoffDatetimeUtc($delivery['cutoff_datetime_utc']);
+
+            $eta = $delivery['eta'];
+            $instahomeDeliveryObject->setDatetimeUtc($eta['datetime_utc']);
+            $instahomeDeliveryObject->setEarliestPossibleDeliveryUtc($eta['earliest_possible_eta_utc']);
+            $instahomeDeliveryObject->setLastPossibleDeliveryUtc($eta['last_possible_eta_utc']);
+            $instahomeDeliveryObject->setDatetimeLocal($eta['datetime_local']);
+            $instahomeDeliveryObject->setTextLocal($eta['text_local']);
+
+            return $instahomeDeliveryObject;
+        }, $instahomeDeliveries);
     }
 }

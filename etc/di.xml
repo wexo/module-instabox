@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Wexo\Instabox\Api\Carrier\InstaboxInterface" type="Wexo\Instabox\Model\Carrier\Instabox"/>
     <preference for="Wexo\Instabox\Api\Data\ParcelShopInterface" type="Wexo\Instabox\Model\Data\ParcelShop"/>
+    <preference for="Wexo\Instabox\Api\Data\InstahomeInterface" type="Wexo\Instabox\Model\Data\Instahome"/>
 
     <type name="Wexo\Shipping\Model\ComponentManagement">
         <arguments>
@@ -27,8 +28,9 @@
                 <item name="green" xsi:type="array">
                     <item name="label" xsi:type="string">Green</item>
                 </item>
-                <item name="instabikes" xsi:type="array">
-                    <item name="label" xsi:type="string">Instabikes</item>
+                <item name="instahome" xsi:type="array">
+                    <item name="label" xsi:type="string">Instahome</item>
+                    <item name="type" xsi:type="object">Wexo\Instabox\Model\MethodType\Instahome</item>
                 </item>
                 <item name="collect_in_store" xsi:type="array">
                     <item name="label" xsi:type="string">Collect In Store</item>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Sales\Block\Adminhtml\Order\View">
+        <plugin name="sales_order_adminhtml_view_print_all_labels" type="Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Order\PrintAllLabelsButton"/>
+    </type>
+    <type name="Magento\Shipping\Block\Adminhtml\View">
+        <plugin name="shipment_adminhtml_view_print_label" type="Wexo\Instabox\Plugin\Sales\Block\Adminhtml\Shipment\PrintLabel"/>
+    </type>
+</config>

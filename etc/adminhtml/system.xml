@@ -28,6 +28,13 @@
                     <label>Append Parcelshop Title to Shipping Rate Method Title</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="instahome_prepend_title" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Prepend text to Instahome deliveries</label>
+                </field>
+                <field id="max_instahome_deliveries" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maximum instahome deliveries</label>
+                    <validate>integer</validate>
+                </field>
                 <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Title</label>

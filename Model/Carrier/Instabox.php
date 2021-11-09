@@ -21,9 +21,7 @@ use Magento\Shipping\Model\Rate\ResultFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Wexo\Instabox\Api\Carrier\InstaboxInterface;
-use Wexo\Instabox\Api\Data\ParcelShopInterface;
 use Wexo\Instabox\Model\Api;
-use Wexo\Shipping\Api\Carrier\CarrierInterface;
 use Wexo\Shipping\Api\Carrier\MethodTypeHandlerInterface;
 use Wexo\Shipping\Api\Data\RateInterface;
 use Wexo\Shipping\Model\Carrier\AbstractCarrier;
@@ -58,7 +56,9 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
      * @param MethodFactory $methodFactory
      * @param ResultFactory $resultFactory
      * @param Api $instaboxApi
+     * @param \Wexo\Instabox\Model\Config $config
      * @param Repository $assetRepository
+     * @param Json $json
      * @param StoreManagerInterface $storeManager
      * @param MethodTypeHandlerInterface|null $defaultMethodTypeHandler
      * @param array $methodTypeHandlers
@@ -143,6 +143,47 @@ class Instabox extends AbstractCarrier implements InstaboxInterface
 
             if ($rate->getCustomerGroups()
                 && !in_array($quote->getCustomerGroupId(), explode(',', $rate->getCustomerGroups()))) {
+                continue;
+            }
+
+            if ($rate->getMethodType() === 'instahome') {
+                $requestData = $request->getData();
+                $instahomeDeliveries = $this->instaboxApi->getInstahome(
+                    $quote->getCustomerEmail(),
+                    $quote->getBillingAddress()->getTelephone(),
+                    $requestData['dest_street'],
+                    $requestData['dest_postcode'],
+                    $requestData['dest_city'],
+                    $requestData['dest_country_id'],
+                    $requestData['base_currency']->getCurrencyCode(),
+                    $requestData['all_items'],
+                    $requestData['package_value_with_discount']
+                );
+                if ($this->instaboxApi->getShowInstahomeAsOption() &&
+                    isset($instahomeDeliveries) &&
+                    !empty($instahomeDeliveries)) {
+                    $maxInstahomeDeliveries = $this->config->getMaxInstahomeDeliveries();
+                    $x = 0;
+                    foreach ($instahomeDeliveries as $delivery) {
+                        if ($maxInstahomeDeliveries > 0 && $x >= $maxInstahomeDeliveries) {
+                            break;
+                        }
+                        $method = $this->methodFactory->create();
+                        $method->setData('carrier', $this->_code);
+                        $method->setData('carrier_title', $this->getTitle());
+                        $method->setData('method', $this->makeMethodCode($rate) . '-' . $delivery['number']);
+                        $method->setData(
+                            'method_title',
+                            $this->config->getInstahomePrependTitle() . $delivery['description']
+                        );
+                        $method->setPrice(
+                            $request->getFreeShipping() && $rate->getAllowFree() ? 0 : $rate->getPrice()
+                        );
+
+                        $result->append($method);
+                        $x++;
+                    }
+                }
                 continue;
             }
 
