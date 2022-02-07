@@ -23,6 +23,12 @@
                        showInStore="1">
                     <label>Instabox Customer Number</label>
                 </field>
+                <field id="disable_booking" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Disable Automatic Book on Shipment create</label>
+                    <comment>This is useful if you have a custom integration for your shipping</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="parcel_shop_title" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Append Parcelshop Title to Shipping Rate Method Title</label>

@@ -491,11 +491,17 @@ class Api
      */
     public function createBooking(OrderInterface $order, $shipment)
     {
+        if($this->config->getDisableBooking())
+        {
+            $this->logger->debug(__METHOD__.' :: Automatic Booking Disabled');
+            return;
+        }
+
         $shippingData = $this->jsonSerializer->unserialize($order->getData('wexo_shipping_data'));
         $instabox = isset($shippingData['instabox']) ? $shippingData['instabox'] : false;
         if (!$instabox) {
             $this->logger->error(
-                'Instabox CreateOrderV2 No Instabox data',
+                __METHOD__.' :: No Instabox data',
                 [
                     'shipping_data' => $shippingData
                 ]
@@ -571,7 +577,7 @@ class Api
             ]
         ];
         $this->logger->debug(
-            'Instabox CreateOrder Preflight',
+            __METHOD__ . ' Instabox CreateOrder Preflight',
             [
                 'body' => $body
             ]
@@ -584,7 +590,7 @@ class Api
                 ]);
             }, function (Response $response, $content) {
                 $this->logger->debug(
-                    'InstaBox CreateOrder Response',
+                    __METHOD__ . 'InstaBox CreateOrder Response',
                     [
                         'response' => $response,
                         'content' => $content
