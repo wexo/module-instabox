@@ -36,6 +36,7 @@ class Api
     const TRACKING_URI = 'https://track.instabox.io';
     const CACHE_KEY_ACCESS_TOKEN = 'instabox_access_token';
     const LABEL_GENERATOR = 'https://waybill-generator-api.instabox.se/v1/waybills';
+    const TOKEN_CACHE_LIFETIME = 82800; // Token expires after 24 hours, so cache lifetime is 23 hours in seconds
 
     /**
      * @var ClientFactory
@@ -352,7 +353,7 @@ class Api
         if ($content['status'] === 'ok') {
             $token = $content['token'];
             $this->cache->remove($this->getCacheKey());
-            $this->cache->save($token, $this->getCacheKey(), []);
+            $this->cache->save($token, $this->getCacheKey(), [], static::TOKEN_CACHE_LIFETIME);
             return $token;
         }
     }
