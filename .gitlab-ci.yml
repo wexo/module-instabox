@@ -13,7 +13,7 @@ codesniffer:
     - composer config -g cache-dir "$(pwd)/.composer-cache"
     - echo "$COMPOSER_AUTH" > ~/.composer/auth.json
     - composer install
-    - ./vendor/bin/phpcs --config-set installed_paths ./../../magento/magento-coding-standard/,./../../wexo/custom-magento-2-coding-standard/
+    - ./vendor/bin/phpcs --config-set installed_paths ./../../magento/magento-coding-standard/../../../wexo/custom-magento-2-coding-standard/
   script:
     - ./vendor/bin/phpcs ./ --standard=WEXOMagento2 --warning-severity=7 --ignore=vendor/*
   only:
