@@ -24,7 +24,7 @@
     },
     {
       "type": "git",
-      "url": "https://gitlab.services.wexo.dk/magento2-modules/approved/shipping/shipping-core.git"
+      "url": "https://gitlab.wexo.io/magento2-modules/approved/shipping/shipping-core.git"
     }
   ]
 }
