@@ -11,7 +11,6 @@ codesniffer:
   image: registry.services.wexo.dk:4567/wexo-services/docker-magento/magento2-code-quality-php:8.2-fpm
   before_script:
     - composer config -g cache-dir "$(pwd)/.composer-cache"
-    - echo "$COMPOSER_AUTH" > ~/.composer/auth.json
     - composer install
     - ./vendor/bin/phpcs --config-set installed_paths ./../../magento/magento-coding-standard/../../../wexo/custom-magento-2-coding-standard/
   script:
