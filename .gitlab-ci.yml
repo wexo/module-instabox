@@ -8,7 +8,7 @@ before_script:
 
 codesniffer:
   stage: test
-  image: registry.services.wexo.dk:4567/wexo-services/docker-magento:magento2-code-quality-php:7.2-fpm
+  image: registry.services.wexo.dk:4567/wexo-services/docker-magento/magento2-code-quality-php:7.2-fpm
   before_script:
     - composer config -g cache-dir "$(pwd)/.composer-cache"
     - echo "$COMPOSER_AUTH" > ~/.composer/auth.json
