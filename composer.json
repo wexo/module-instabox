@@ -21,10 +21,6 @@
     {
       "type": "composer",
       "url": "https://magento2.repo.wexo.io/"
-    },
-    {
-      "type": "git",
-      "url": "https://gitlab.wexo.io/magento2-modules/approved/shipping/shipping-core.git"
     }
   ]
 }
