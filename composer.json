@@ -20,7 +20,7 @@
   "repositories": [
     {
       "type": "composer",
-      "url": "https://repo.wexo.dk/"
+      "url": "https://magento2.repo.wexo.io/"
     },
     {
       "type": "git",
