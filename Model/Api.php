@@ -320,9 +320,7 @@ class Api
                     'weight' => $weight ?? 100,
                     'type' => 'BOX',
                 ],
-                'products' => [
-                    $products
-                ],
+                'products' => $products,
             ],
             'options' => [
                 'units' => [
